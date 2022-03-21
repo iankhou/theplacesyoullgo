@@ -36,3 +36,43 @@
     transform: rotate(360deg);
   }
 }
+
+.map-container {
+  height: 100vh;
+}
+
+.sidebar {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 6px 12px;
+  font-family: monospace;
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 12px;
+  border-radius: 4px;
+  }
+
+.action_button {
+  margin-left: 2em;
+  }
+
+.mapboxgl-popup-content {
+  border-radius: 1em;
+  background:  black;
+  opacity: 0.75;
+  color: white; 
+}
+
+.mapboxgl-popup-close-button {
+  display: none;
+}
+
+.user-container {
+  margin-bottom: 3em;
+}
+
+.user-container:last-child {
+  margin-bottom: 0;
+}
