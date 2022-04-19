@@ -52,17 +52,17 @@
   left: 0;
   margin: 12px;
   border-radius: 4px;
-  }
+}
 
 .action_button {
   margin-left: 2em;
-  }
+}
 
 .mapboxgl-popup-content {
   border-radius: 1em;
-  background:  black;
+  background: black;
   opacity: 0.75;
-  color: white; 
+  color: white;
 }
 
 .mapboxgl-popup-close-button {
@@ -75,4 +75,31 @@
 
 .user-container:last-child {
   margin-bottom: 0;
+}
+/* The overlay effect with black background */
+.overlay {
+  height: 100%;
+  width: 100%;
+  display: none;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.9
+  ); /* Black with a little bit see-through */
+}
+
+/* examples/custom-styling.css */
+.customOverlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.customModal {
+  /* background: #000000; */
+  width: 75%;
+  color: azure;
 }
