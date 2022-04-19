@@ -4,6 +4,11 @@ import ReactDOM from "react-dom";
 import mapboxgl from "!mapbox-gl";
 import axios from "axios";
 import Button from "@mui/material/Button";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+// import { ThemeProvider, createTheme } from "@mui/material/styles";
+import "react-responsive-modal/styles.css";
+import { Modal } from "react-responsive-modal";
 import "./App.css";
 
 mapboxgl.accessToken = "pk.eyJ1IjoiaWFua2hvdSIsImEiOiJja3U1enMzNHE0enN4Mm9waXNwcDlyeGVpIn0.gz1TKA2H5JfDkMiHkdVxRQ";
@@ -13,9 +18,15 @@ export default function App() {
 	const mapContainer = useRef(null);
 	const map = useRef(null);
 	const [users, setUsers] = useState(null);
-	const [lng, setLng] = useState(-98.08226562598172);
-	const [lat, setLat] = useState(39.67197697791948);
+	const [lng, setLng] = useState(-98.0822);
+	const [lat, setLat] = useState(39.6719);
 	const [zoom, setZoom] = useState(3);
+	const [search, setSearch] = useState(false);
+	// const theme = createTheme({
+	// 	palette: {
+	// 	  type: "dark"
+	// 	},
+	//   });
 
 	useEffect(() => {
 		if (!map.current) return; // wait for map to initialize
@@ -36,22 +47,36 @@ export default function App() {
 			.addTo(map.current);
 	}
 
+	const formPopup = (users) => {
+		users = JSON.parse(users);
+		return <div>
+			{users.map((user) =>
+				<div className="user-container" key={`USER_INFO_BOX_FOR_${user["email"]}`}>
+					<h1>{`${user["name"]} '${user["year"]}`}</h1>
+					{user["roommate"] ? <h3><b>Looking for a house/roommate</b></h3> : null}
+					<p>Major(s): {user["major"]}</p>
+					<p>What I&apos;m doing here: {user["activity"]}</p>
+					{user["contact"] ? <p>Contact: {user["contact"]}</p> : null}
+					<p>Last updated: {new Date(user["timestamp"]).toLocaleDateString()}</p>
+				</div>) }
+		</div>;
+	};
+
 	useEffect(() => {
 		if (users) return;
 		const axiosStart = performance.now();
-		// axios.get("https://damp-waters-93180.herokuapp.com/https://script.google.com/macros/s/AKfycbw4H4dqvK6b4iIW_RkF80__SzI3bpCi0k6-OxQdv2-utpXJbcTY8d_KsdIOS-BSfEENxg/exec", { headers: { "Access-Control-Allow-Origin": "*" } })
 		axios.get("https://script.google.com/macros/s/AKfycbw4H4dqvK6b4iIW_RkF80__SzI3bpCi0k6-OxQdv2-utpXJbcTY8d_KsdIOS-BSfEENxg/exec")
 
 			.then((resp) => {
 				const axiosEnd = performance.now();
 				console.log(`Axios call took ${axiosEnd - axiosStart} milliseconds`);
 
-				setUsers(resp.data);
+				// setUsers(resp.data);
         
 				const features = {};
 
 				const uniqueStart = performance.now();
-
+				
 				resp.data.forEach((d) => {          
 					features[d["Email Address"]] =  {
 						type: "Feature",
@@ -68,7 +93,8 @@ export default function App() {
 									contact: d["Contact information"],
 									email: d["Email Address"]
 								},
-							]
+							],
+							attention: d["Are you looking for a house/roommate?"] == "Yes" ? 1 : 0,
 						},
 						geometry: {
 							type: "Point",
@@ -78,6 +104,8 @@ export default function App() {
 						}
 					};
 				});
+				// console.log(features);
+				setUsers(features);
 
 				const uniqueEnd = performance.now();
 
@@ -106,12 +134,14 @@ export default function App() {
 							const oldUserList = groupedFeatures[c[2]]["properties"]["users"];
 							const oldGeometry = groupedFeatures[c[2]]["geometry"];
 							const oldWeight = groupedFeatures[c[2]]["properties"]["weight"];
-
+							const oldAttention = groupedFeatures[c[2]]["properties"]["attention"];
+							
 							groupedFeatures[c[2]] = {
 								type: "Feature",
 								properties: {
 									weight: oldWeight + 1,
-									users: [...oldUserList, e["properties"]["users"][0]]
+									users: [...oldUserList, e["properties"]["users"][0]],
+									attention: + [oldAttention, e["properties"]["attention"]].some((a) => a === 1)
 								},
 								geometry: oldGeometry
 							};
@@ -121,7 +151,7 @@ export default function App() {
 					});
 					if (!found) {
 						// if you've made it this far, there is not a match
-					  // push the uniquely-located user to the group
+						// push the uniquely-located user to the group
 						groupedFeatures.push(e);
 						// cache their location and group index, increment group index
 						locCache.add([long, lat, groupI]);
@@ -133,7 +163,6 @@ export default function App() {
 				const groupEnd = performance.now();
 
 				console.log(`Grouping records took ${groupEnd - groupStart} milliseconds`);
-
 
 				const userCollection = {
 					type: "FeatureCollection",
@@ -187,13 +216,13 @@ export default function App() {
 									0,
 									"rgba(255,153,153,0)",
 									0.2,
-									"rgb(255,0,0)",
+									"rgb(0,255,150)",
 									0.4,
-									"rgb(204,0,0)",
+									"rgb(50,204,0)",
 									0.6,
-									"rgb(153,0,0)",
+									"rgb(50,153,0)",
 									0.8,
-									"rgb(102,0,0)"
+									"rgb(50,102,0)"
 								],
 								// increase radius as zoom increases
 								"heatmap-radius": {stops: [[11, 15],[15, 20]]},
@@ -201,8 +230,8 @@ export default function App() {
 								"heatmap-opacity": {
 									default: 1,
 									stops: [
-										[14, 1],
-										[15, 0]
+										[11, 1],
+										[12, 0]
 									]
 								}
 							}
@@ -215,29 +244,26 @@ export default function App() {
 							id: "users-point",
 							type: "circle",
 							source: "users",
-							minzoom: 12,
+							minzoom: 5,
 							paint: {
 								// increase the radius of the circle as the zoom level and weight increases
-								"circle-radius": {property: "weight",type: "exponential",stops: [[{ zoom: 15, value: 1 }, 20],[{ zoom: 15, value: 62 }, 40],[{ zoom: 22, value: 1 }, 80],[{ zoom: 22, value: 62 }, 200]]},
+								// "circle-radius": {property: "weight",type: "exponential",stops: [[{ zoom: 15, value: 1 }, 20],[{ zoom: 15, value: 62 }, 40],[{ zoom: 22, value: 1 }, 80],[{ zoom: 22, value: 62 }, 200]]},
+								"circle-radius": 8,
+								// "circle-color": "rgb(0,255,0)",
 								"circle-color": {
-									property: "weight",
+									property: "attention",
 									type: "exponential",
 									stops: [
-										[0, "rgb(100,0,0)"],
-										[10, "rgb(125,0,0)"],
-										[20, "rgb(150,0,0)"],
-										[30, "rgb(175,0,0)"],
-										[40, "rgb(200,0,0)"],
-										[50, "rgb(225,0,0)"],
-										[60, "rgb(250,0,0)"],
+										[0, "rgb(0,225,0)"],
+										[1, "rgb(255,200,0)"]
 									]
 								},
-								"circle-stroke-color": "white",
-								"circle-stroke-width": 2,
+								"circle-stroke-color": "rgba(0,100,0, 0.3)",
+								"circle-stroke-width": 1,
 								"circle-opacity": {
 									stops: [
-										[14, 0],
-										[15, 1]
+										[11, 0],
+										[12, 1]
 									]
 								}
 							}
@@ -248,19 +274,20 @@ export default function App() {
 					map.current.on("click", "users-point", ({ features }) => {
 						const { users } = features[0].properties;
 						console.log(typeof JSON.parse(users)[0]["timestamp"], JSON.parse(users)[0]["timestamp"]);
-						const myComp = (
-							<div>
-								{JSON.parse(users).map((user) =>
-									<div className="user-container" key={`USER_INFO_BOX_FOR_${user["email"]}`}>
-										<h1>{`${user["name"]} '${user["year"]}`}</h1>
-										<p>Major(s): {user["major"]}</p>
-										<p>What I&apos;m doing here: {user["activity"]}</p>
-										{user["roommate"] ? <p>Looking for a house/roommate</p> : null}
-										{user["contact"] ? <p>Contact: {user["contact"]}</p> : null}
-										<p>Last updated: {new Date(user["timestamp"]).toString()}</p>
-									</div>) }
-							</div>
-						);
+						const myComp = formPopup(JSON.stringify(users));
+						// (
+						// 	<div>
+						// 		{JSON.parse(users).map((user) =>
+						// 			<div className="user-container" key={`USER_INFO_BOX_FOR_${user["email"]}`}>
+						// 				<h1>{`${user["name"]} '${user["year"]}`}</h1>
+						// 				{user["roommate"] ? <h3><b>Looking for a house/roommate</b></h3> : null}
+						// 				<p>Major(s): {user["major"]}</p>
+						// 				<p>What I&apos;m doing here: {user["activity"]}</p>
+						// 				{user["contact"] ? <p>Contact: {user["contact"]}</p> : null}
+						// 				<p>Last updated: {new Date(user["timestamp"]).toLocaleDateString()}</p>
+						// 			</div>) }
+						// 	</div>
+						// );
         
 						addPopup(myComp, features[0].geometry.coordinates);
 					});
@@ -274,21 +301,90 @@ export default function App() {
 
 			});
 	});
+	let options;
 
+	if (users) {
+		// console.log(users);
+		options = Object.keys(users).map((email) => {
+			// console.log(email);
+			return {
+				email,
+				name: users[email].properties.users[0].name,
+				location: users[email].geometry.coordinates,
+				userData: users[email].properties.users
+			};
+		});
+	} else {
+		options = [];
+	}
 	return (
+	// <ThemeProvider theme={theme}>
+
 		<div>
 			<div className="sidebar">
-				<p>Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}</p>
-				<Button className="action_button" size="small" variant="outlined" href="https://docs.google.com/forms/d/e/1FAIpQLSeL_-gto_kwPpzbZCJaGejjlfbrLwmW1TqobfToT4AHlxPIGA/viewform?usp=sf_link">
-    add yourself (dartmouth email)
+				<p>Long: {lng} | Lat: {lat} | Zoom: {zoom}</p>
+				<p>Zoom in to see roommate seekers!</p>
+				
+				<Button style={{marginRight:10}} className="action_button" size="small" variant="outlined" onClick={()=>setSearch(true)}>
+    search
 				</Button>
-				<Button style={{ marginLeft: 10 }} className="action_button" size="small" variant="outlined" href="mailto:iankwanhou@gmail.com">
+				<Button className="action_button" size="small" variant="outlined" href="https://docs.google.com/forms/d/e/1FAIpQLSeL_-gto_kwPpzbZCJaGejjlfbrLwmW1TqobfToT4AHlxPIGA/viewform?usp=sf_link">
+    students
+				</Button>
+				<Button style={{ margin: 10 }} className="action_button" size="small" variant="outlined" href="https://docs.google.com/forms/d/e/1FAIpQLSfN9_kXsE0C4RcdjWCGpTgGH4cwAgVoAeKLCxVW9voIYm4BLQ/viewform?usp=sf_link">
     alums
 				</Button>
+				
+				<Modal center 
+					classNames={{
+						overlay: "customOverlay",
+						modal: "customModal",
+					}}
+					open={search} onClose={() => setSearch(false)}>
+					<Autocomplete 
+						options={options}
+						// renderOption={(props, option)=>{
+						// 	console.log(option);
+						// 	return (
+						// 		<li {...props} key={option.email}>
+						// 			{option.name}
+						// 		</li>
+						// 	);
+						// }
+						// }
+						isOptionEqualToValue={(option, value) => option.email === value.email}
+						getOptionLabel={(option) => option.name}
+						autoComplete
+						renderInput={(params) => <TextField {...params} label="Search" />}
+						sx={{color: "black"}}
+						onChange={(e, val) => {
+							// console.log(val);
+							// console.log(users);
+							setSearch(false);
+							// console.log(map);
+							// console.log(val);
+							map.current.flyTo(
+								{
+									center: val.location,
+									zoom: 13
+								}
+							);
+							console.log(val.userData);
+							const myPopup = formPopup(JSON.stringify(val.userData));
+							console.log(myPopup);
+							addPopup(myPopup, val.location);
+						}}
+						
+					/>
+				</Modal>
+				
+
 			</div>
       
 			<div ref={mapContainer} className="map-container" />
       
 		</div>
+		// </ThemeProvider>
+
 	);
 }
