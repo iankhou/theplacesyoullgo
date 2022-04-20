@@ -6,7 +6,8 @@ import axios from "axios";
 import Button from "@mui/material/Button";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-// import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { deepPurple } from "@mui/material/colors";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import "./App.css";
@@ -22,11 +23,14 @@ export default function App() {
 	const [lat, setLat] = useState(39.6719);
 	const [zoom, setZoom] = useState(3);
 	const [search, setSearch] = useState(false);
-	// const theme = createTheme({
-	// 	palette: {
-	// 	  type: "dark"
-	// 	},
-	//   });
+	const theme = createTheme({
+		palette: {
+			mode: "dark",
+			primary: {
+			  main: deepPurple[400],
+			},
+		  },
+	  });
 
 	useEffect(() => {
 		if (!map.current) return; // wait for map to initialize
@@ -69,8 +73,6 @@ export default function App() {
 			.then((resp) => {
 				const axiosEnd = performance.now();
 				console.log(`Axios call took ${axiosEnd - axiosStart} milliseconds`);
-
-				// setUsers(resp.data);
         
 				const features = {};
 
@@ -103,7 +105,6 @@ export default function App() {
 						}
 					};
 				});
-				// console.log(features);
 				setUsers(features);
 
 				const uniqueEnd = performance.now();
@@ -246,9 +247,7 @@ export default function App() {
 							minzoom: 5,
 							paint: {
 								// increase the radius of the circle as the zoom level and weight increases
-								// "circle-radius": {property: "weight",type: "exponential",stops: [[{ zoom: 15, value: 1 }, 20],[{ zoom: 15, value: 62 }, 40],[{ zoom: 22, value: 1 }, 80],[{ zoom: 22, value: 62 }, 200]]},
 								"circle-radius": 8,
-								// "circle-color": "rgb(0,255,0)",
 								"circle-color": {
 									property: "attention",
 									type: "exponential",
@@ -272,22 +271,7 @@ export default function App() {
 
 					map.current.on("click", "users-point", ({ features }) => {
 						const { users } = features[0].properties;
-						console.log(typeof JSON.parse(users)[0]["timestamp"], JSON.parse(users)[0]["timestamp"]);
 						const myComp = formPopup(JSON.parse(users));
-						// (
-						// 	<div>
-						// 		{JSON.parse(users).map((user) =>
-						// 			<div className="user-container" key={`USER_INFO_BOX_FOR_${user["email"]}`}>
-						// 				<h1>{`${user["name"]} '${user["year"]}`}</h1>
-						// 				{user["roommate"] ? <h3><b>Looking for a house/roommate</b></h3> : null}
-						// 				<p>Major(s): {user["major"]}</p>
-						// 				<p>What I&apos;m doing here: {user["activity"]}</p>
-						// 				{user["contact"] ? <p>Contact: {user["contact"]}</p> : null}
-						// 				<p>Last updated: {new Date(user["timestamp"]).toLocaleDateString()}</p>
-						// 			</div>) }
-						// 	</div>
-						// );
-        
 						addPopup(myComp, features[0].geometry.coordinates);
 					});
 				});
@@ -303,12 +287,11 @@ export default function App() {
 	let options;
 
 	if (users) {
-		// console.log(users);
 		options = Object.keys(users).map((email) => {
-			// console.log(email);
 			return {
 				email,
 				name: users[email].properties.users[0].name,
+				year: users[email].properties.users[0].year,
 				location: users[email].geometry.coordinates,
 				userData: users[email].properties.users
 			};
@@ -317,22 +300,21 @@ export default function App() {
 		options = [];
 	}
 	return (
-	// <ThemeProvider theme={theme}>
 
 		<div>
 			<div className="sidebar">
-				<p>Long: {lng} | Lat: {lat} | Zoom: {zoom}</p>
-				<p>Zoom in to see roommate seekers!</p>
-				
-				<Button style={{marginRight:10}} className="action_button" size="small" variant="outlined" onClick={()=>setSearch(true)}>
+				<p style={{marginBottom: 5}}>Long: {lng} | Lat: {lat} | Zoom: {zoom}<br />Yellow dots need roommates (zoom in)!</p>
+				<ThemeProvider theme={theme}>
+					<Button style={{marginRight:10}} className="action_button" size="small" variant="outlined" onClick={()=>setSearch(true)}>
     search
-				</Button>
-				<Button className="action_button" size="small" variant="outlined" href="https://docs.google.com/forms/d/e/1FAIpQLSeL_-gto_kwPpzbZCJaGejjlfbrLwmW1TqobfToT4AHlxPIGA/viewform?usp=sf_link">
+					</Button>
+					<Button className="action_button" size="small" variant="outlined" href="https://docs.google.com/forms/d/e/1FAIpQLSeL_-gto_kwPpzbZCJaGejjlfbrLwmW1TqobfToT4AHlxPIGA/viewform?usp=sf_link">
     students
-				</Button>
-				<Button style={{ margin: 10 }} className="action_button" size="small" variant="outlined" href="https://docs.google.com/forms/d/e/1FAIpQLSfN9_kXsE0C4RcdjWCGpTgGH4cwAgVoAeKLCxVW9voIYm4BLQ/viewform?usp=sf_link">
+					</Button>
+					<Button style={{ margin: 10 }} className="action_button" size="small" variant="outlined" href="https://docs.google.com/forms/d/e/1FAIpQLSfN9_kXsE0C4RcdjWCGpTgGH4cwAgVoAeKLCxVW9voIYm4BLQ/viewform?usp=sf_link">
     alums
-				</Button>
+					</Button>
+				</ThemeProvider>
 				
 				<Modal center 
 					classNames={{
@@ -340,41 +322,31 @@ export default function App() {
 						modal: "customModal",
 					}}
 					open={search} onClose={() => setSearch(false)}>
-					<Autocomplete 
-						options={options}
-						// renderOption={(props, option)=>{
-						// 	console.log(option);
-						// 	return (
-						// 		<li {...props} key={option.email}>
-						// 			{option.name}
-						// 		</li>
-						// 	);
-						// }
-						// }
-						isOptionEqualToValue={(option, value) => option.email === value.email}
-						getOptionLabel={(option) => option.name}
-						autoComplete
-						renderInput={(params) => <TextField {...params} label="Search" />}
-						sx={{color: "black"}}
-						onChange={(e, val) => {
-							// console.log(val);
-							// console.log(users);
-							setSearch(false);
-							// console.log(map);
-							// console.log(val);
-							map.current.flyTo(
-								{
-									center: val.location,
-									zoom: 13
-								}
-							);
-							console.log(val.userData);
-							const myPopup = formPopup(val.userData);
-							console.log(myPopup);
-							addPopup(myPopup, val.location);
-						}}
+					<ThemeProvider theme={theme}>
+						<Autocomplete 
+							options={options}
+							isOptionEqualToValue={(option, value) => option.email === value.email}
+							getOptionLabel={(option) => option.name}
+							autoComplete
+							renderInput={(params) => <TextField {...params} label="Search" />}
+							renderOption={(props, option) => <li {...props} key={option.email}>{option.name} (&lsquo;{option.year})</li>}
+
+							sx={{color: "black"}}
+							onChange={(e, val) => {
+								setSearch(false);
+								map.current.flyTo(
+									{
+										center: val.location,
+										zoom: 13
+									}
+								);
+								const myPopup = formPopup(val.userData);
+								addPopup(myPopup, val.location);
+							}}
 						
-					/>
+						/>
+					</ThemeProvider>
+
 				</Modal>
 				
 
@@ -383,7 +355,6 @@ export default function App() {
 			<div ref={mapContainer} className="map-container" />
       
 		</div>
-		// </ThemeProvider>
 
 	);
 }
