@@ -48,7 +48,6 @@ export default function App() {
 	}
 
 	const formPopup = (users) => {
-		users = JSON.parse(users);
 		return <div>
 			{users.map((user) =>
 				<div className="user-container" key={`USER_INFO_BOX_FOR_${user["email"]}`}>
@@ -274,7 +273,7 @@ export default function App() {
 					map.current.on("click", "users-point", ({ features }) => {
 						const { users } = features[0].properties;
 						console.log(typeof JSON.parse(users)[0]["timestamp"], JSON.parse(users)[0]["timestamp"]);
-						const myComp = formPopup(JSON.stringify(users));
+						const myComp = formPopup(JSON.parse(users));
 						// (
 						// 	<div>
 						// 		{JSON.parse(users).map((user) =>
@@ -370,7 +369,7 @@ export default function App() {
 								}
 							);
 							console.log(val.userData);
-							const myPopup = formPopup(JSON.stringify(val.userData));
+							const myPopup = formPopup(val.userData);
 							console.log(myPopup);
 							addPopup(myPopup, val.location);
 						}}
