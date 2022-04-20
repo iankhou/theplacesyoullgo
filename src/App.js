@@ -303,7 +303,7 @@ export default function App() {
 
 		<div>
 			<div className="sidebar">
-				<p style={{marginBottom: 5}}>Long: {lng} | Lat: {lat} | Zoom: {zoom}<br />Yellow dots need roommates (zoom in)!</p>
+				<p style={{marginBottom: 5}}>Long: {lng} | Lat: {lat} | Zoom: {zoom}<br />Yellow dots need roommates (zoom in)<br />Add yourself to the map!</p>
 				<ThemeProvider theme={theme}>
 					<Button style={{marginRight:10}} className="action_button" size="small" variant="outlined" onClick={()=>setSearch(true)}>
     search
