@@ -53,15 +53,18 @@ export default function App() {
 
 	const formPopup = (users) => {
 		return <div>
-			{users.map((user) =>
-				<div className="user-container" key={`USER_INFO_BOX_FOR_${user["email"]}`}>
+			{users.map((user) => {
+				console.log(user);
+				return <div className="user-container" key={`USER_INFO_BOX_FOR_${user["email"]}`}>
 					<h1>{`${user["name"]} '${user["year"]}`}</h1>
 					{user["roommate"] ? <h3><b>Looking for a house/roommate</b></h3> : null}
 					<p>Major(s): {user["major"]}</p>
 					<p>What I&apos;m doing here: {user["activity"]}</p>
 					{user["contact"] ? <p>Contact: {user["contact"]}</p> : null}
 					<p>Last updated: {new Date(user["timestamp"]).toLocaleDateString()}</p>
-				</div>) }
+				</div>;
+			}
+			) }
 		</div>;
 	};
 
@@ -77,7 +80,7 @@ export default function App() {
 				const features = {};
 
 				const uniqueStart = performance.now();
-				
+				console.log(resp.data[resp.data.length - 1]);
 				resp.data.forEach((d) => {          
 					features[d["Email Address"]] =  {
 						type: "Feature",
@@ -89,7 +92,7 @@ export default function App() {
 									name: d["Name (First Last)"],
 									year: d["Year"],
 									major: d["Major(s)"],
-									activity: d["What will you be doing there (work, school, etc.)?"],
+									activity: d["What will you be doing there (ex. Working at McDonalds as a Software Engineer)?"],
 									roommate: d["Are you looking for a house/roommate?"] == "Yes" ? true : false,
 									contact: d["Contact information"],
 									email: d["Email Address"]
