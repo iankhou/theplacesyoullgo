@@ -76,15 +76,12 @@ export default function App() {
 	useEffect(() => {
 		if (users) return;
 		const axiosStart = performance.now();
-		axios.get("https://script.google.com/macros/s/AKfycbzqn-y8SAgoDB4QMh-XFzVwP1jrc2FDnh7GXFUy2Mkz6iKv9m5b0uhAKdT7Y9jrIQ7wcQ/exec")
-		// axios.get("https://script.google.com/macros/s/AKfycbw4H4dqvK6b4iIW_RkF80__SzI3bpCi0k6-OxQdv2-utpXJbcTY8d_KsdIOS-BSfEENxg/exec")
-	
+		axios.get("https://script.google.com/macros/s/AKfycbzqn-y8SAgoDB4QMh-XFzVwP1jrc2FDnh7GXFUy2Mkz6iKv9m5b0uhAKdT7Y9jrIQ7wcQ/exec")	
 			.then((resp) => {
 				const axiosEnd = performance.now();
 				console.log(`Axios call took ${axiosEnd - axiosStart} milliseconds`);
         
 				const features = {};
-
 				const uniqueStart = performance.now();
 				resp.data.forEach((d) => {          
 					features[d["Email Address"]] =  {
@@ -341,10 +338,6 @@ export default function App() {
 					<Button className="action_button" size="small" variant="contained" href="https://docs.google.com/forms/d/e/1FAIpQLSdV4LNX-1XjJCtvneYMH1V4d6UdABtJRtr1LOJOM272fc4HOQ/viewform?usp=sf_link">
     add yourself
 					</Button>
-					{/* <Button style={{ margin: 10 }} className="action_button" size="small" variant="contained" href="https://docs.google.com/forms/d/e/1FAIpQLSfN9_kXsE0C4RcdjWCGpTgGH4cwAgVoAeKLCxVW9voIYm4BLQ/viewform?usp=sf_link">
-    alums
-					</Button> */}
-				
 				</div>
 				<div className="top_right">
 					<p>Roommate seekers</p>
