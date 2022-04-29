@@ -41,7 +41,7 @@
   height: 100vh;
 }
 
-.sidebar {
+.top_left {
   background-color: rgba(0, 0, 0, 0.8);
   color: #fff;
   padding: 6px 12px;
@@ -52,6 +52,35 @@
   left: 0;
   margin: 12px;
   border-radius: 4px;
+}
+
+@media only screen and (min-width: 750px) {
+  .top_right {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #fff;
+    padding: 6px 12px;
+    font-family: monospace;
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 12px;
+    border-radius: 4px;
+    width: 15em;
+    max-height: 23em;
+  }
+}
+
+@media only screen and (max-width: 750px) {
+  .top_right {
+    display: none;
+  }
+}
+
+
+.inner_content {
+  overflow: scroll;
+  max-height: 16em;
 }
 
 .action_button {
@@ -70,7 +99,8 @@
 }
 
 .user-container {
-  margin-bottom: 3em;
+  margin-bottom: 0.5em;
+  cursor: pointer;
 }
 
 .user-container:last-child {

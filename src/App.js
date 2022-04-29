@@ -4,10 +4,14 @@ import ReactDOM from "react-dom";
 import mapboxgl from "!mapbox-gl";
 import axios from "axios";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { deepPurple } from "@mui/material/colors";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import SearchIcon from "@mui/icons-material/Search";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import "./App.css";
@@ -23,6 +27,8 @@ export default function App() {
 	const [lat, setLat] = useState(39.6719);
 	const [zoom, setZoom] = useState(3);
 	const [search, setSearch] = useState(false);
+	const [displayRoommates, setDisplayRoommates] = useState(false);
+
 	const theme = createTheme({
 		palette: {
 			mode: "dark",
@@ -54,7 +60,6 @@ export default function App() {
 	const formPopup = (users) => {
 		return <div>
 			{users.map((user) => {
-				console.log(user);
 				return <div className="user-container" key={`USER_INFO_BOX_FOR_${user["email"]}`}>
 					<h1>{`${user["name"]} '${user["year"]}`}</h1>
 					{user["roommate"] ? <h3><b>Looking for a house/roommate</b></h3> : null}
@@ -71,8 +76,9 @@ export default function App() {
 	useEffect(() => {
 		if (users) return;
 		const axiosStart = performance.now();
-		axios.get("https://script.google.com/macros/s/AKfycbw4H4dqvK6b4iIW_RkF80__SzI3bpCi0k6-OxQdv2-utpXJbcTY8d_KsdIOS-BSfEENxg/exec")
-
+		axios.get("https://script.google.com/macros/s/AKfycbzqn-y8SAgoDB4QMh-XFzVwP1jrc2FDnh7GXFUy2Mkz6iKv9m5b0uhAKdT7Y9jrIQ7wcQ/exec")
+		// axios.get("https://script.google.com/macros/s/AKfycbw4H4dqvK6b4iIW_RkF80__SzI3bpCi0k6-OxQdv2-utpXJbcTY8d_KsdIOS-BSfEENxg/exec")
+	
 			.then((resp) => {
 				const axiosEnd = performance.now();
 				console.log(`Axios call took ${axiosEnd - axiosStart} milliseconds`);
@@ -80,7 +86,6 @@ export default function App() {
 				const features = {};
 
 				const uniqueStart = performance.now();
-				console.log(resp.data[resp.data.length - 1]);
 				resp.data.forEach((d) => {          
 					features[d["Email Address"]] =  {
 						type: "Feature",
@@ -282,11 +287,32 @@ export default function App() {
 				const mapEnd = performance.now();
 				
 				console.log(`Mapping records took ${mapEnd - mapStart} milliseconds`);
+				console.log("If you would like to help develop this site, please contact me (Ian Hou) via iankwanhou@gmail.com.");
 
 
 
 			});
 	});
+
+	const displayUsers = () => {
+		if (users) {
+			// Filter for users looking for roommates
+			const usersLookingForRoommate = Object.entries(users).filter((entry) => {
+				return entry[1].properties.users[0].roommate === true;
+			});
+			return usersLookingForRoommate.map(([email, data]) => {
+				return (
+					<div key={email} className="user-container" onClick={()=>{map.current.flyTo({center: data.geometry.coordinates,
+						zoom: 13});}}>
+						<div>{data.properties.users[0].name}</div>
+					</div>
+				);
+			});
+		} else {
+			return null;
+		}
+	};
+
 	let options;
 
 	if (users) {
@@ -302,61 +328,68 @@ export default function App() {
 	} else {
 		options = [];
 	}
+
 	return (
-
 		<div>
-			<div className="sidebar">
-				<p style={{marginBottom: 5}}>Long: {lng} | Lat: {lat} | Zoom: {zoom}<br />Yellow dots need roommates (zoom in)<br />Add yourself to the map!</p>
-				<ThemeProvider theme={theme}>
-					<Button style={{marginRight:10}} className="action_button" size="small" variant="outlined" onClick={()=>setSearch(true)}>
-    search
+			<ThemeProvider theme={theme}>
+				<div className="top_left">
+					<p style={{marginBottom: 5}}>Long: {lng} | Lat: {lat}<br />Add yourself to the map!</p>
+				
+					<IconButton style={{marginRight:10}} color="primary" onClick={()=>setSearch(true)}>
+						<SearchIcon />
+					</IconButton>
+					<Button className="action_button" size="small" variant="contained" href="https://docs.google.com/forms/d/e/1FAIpQLSdV4LNX-1XjJCtvneYMH1V4d6UdABtJRtr1LOJOM272fc4HOQ/viewform?usp=sf_link">
+    add yourself
 					</Button>
-					<Button className="action_button" size="small" variant="outlined" href="https://docs.google.com/forms/d/e/1FAIpQLSeL_-gto_kwPpzbZCJaGejjlfbrLwmW1TqobfToT4AHlxPIGA/viewform?usp=sf_link">
-    students
-					</Button>
-					<Button style={{ margin: 10 }} className="action_button" size="small" variant="outlined" href="https://docs.google.com/forms/d/e/1FAIpQLSfN9_kXsE0C4RcdjWCGpTgGH4cwAgVoAeKLCxVW9voIYm4BLQ/viewform?usp=sf_link">
+					{/* <Button style={{ margin: 10 }} className="action_button" size="small" variant="contained" href="https://docs.google.com/forms/d/e/1FAIpQLSfN9_kXsE0C4RcdjWCGpTgGH4cwAgVoAeKLCxVW9voIYm4BLQ/viewform?usp=sf_link">
     alums
-					</Button>
-				</ThemeProvider>
+					</Button> */}
 				
-				<Modal center 
-					classNames={{
-						overlay: "customOverlay",
-						modal: "customModal",
-					}}
-					open={search} onClose={() => setSearch(false)}>
-					<ThemeProvider theme={theme}>
-						<Autocomplete 
-							options={options}
-							isOptionEqualToValue={(option, value) => option.email === value.email}
-							getOptionLabel={(option) => option.name}
-							autoComplete
-							renderInput={(params) => <TextField {...params} label="Search" />}
-							renderOption={(props, option) => <li {...props} key={option.email}>{option.name} (&lsquo;{option.year})</li>}
+				</div>
+				<div className="top_right">
+					<p>Roommate seekers</p>
 
-							sx={{color: "black"}}
-							onChange={(e, val) => {
-								setSearch(false);
-								map.current.flyTo(
-									{
-										center: val.location,
-										zoom: 13
-									}
-								);
-								const myPopup = formPopup(val.userData);
-								addPopup(myPopup, val.location);
-							}}
-						
-						/>
-					</ThemeProvider>
-
-				</Modal>
+					<div className="inner_content">{displayRoommates ? displayUsers():null}</div>
+					{users ? <div style={{justifyContent: "center", display: "flex"}}>
+						<IconButton aria-label="expand" color="primary" onClick={() => setDisplayRoommates(!displayRoommates)}>
+							{displayRoommates ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+						</IconButton>
+					</div>:null}
+					
 				
-
-			</div>
-      
+				</div>
+			</ThemeProvider>
 			<div ref={mapContainer} className="map-container" />
-      
+			<Modal center 
+				classNames={{
+					overlay: "customOverlay",
+					modal: "customModal",
+				}}
+				open={search} onClose={() => setSearch(false)}>
+				<ThemeProvider theme={theme}>
+					<Autocomplete 
+						options={options}
+						isOptionEqualToValue={(option, value) => option.email === value.email}
+						getOptionLabel={(option) => option.name}
+						autoComplete
+						renderInput={(params) => <TextField {...params} />}
+						renderOption={(props, option) => <li {...props} key={option.email}>{option.name} (&lsquo;{option.year})</li>}
+						sx={{color: "black"}}
+						onChange={(e, val) => {
+							setSearch(false);
+							map.current.flyTo(
+								{
+									center: val.location,
+									zoom: 13
+								}
+							);
+							const myPopup = formPopup(val.userData);
+							addPopup(myPopup, val.location);
+						}}
+						
+					/>
+				</ThemeProvider>
+			</Modal>
 		</div>
 
 	);
