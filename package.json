@@ -1,7 +1,6 @@
 {
   "name": "otpyg",
   "version": "0.1.0",
-  "homepage": "https://iankhou.github.io/theplacesyoullgo",
   "description": "a mobile-friendly web application that allows Dartmouth students to find their classmates",
   "license": "UNLICENSED",
   "private": true,
