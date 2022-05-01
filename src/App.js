@@ -84,7 +84,6 @@ export default function App() {
 				const features = {};
 				const uniqueStart = performance.now();
 				resp.data.forEach((d) => {     
-					console.log(d);     
 					features[d["Email Address"]] =  {
 						type: "Feature",
 						properties: {
