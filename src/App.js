@@ -94,7 +94,7 @@ export default function App() {
 									name: d["Name (First Last)"],
 									year: d["Year"],
 									major: d["Major(s)"],
-									activity: d["What will you be doing there (ex. Working at McDonalds as a Software Engineer)?"],
+									activity: d["What have/will you be(en) doing there (ex. Working at McDonalds as a Software Engineer)?"],
 									roommate: d["Are you looking for a house/roommate?"] == "Yes" ? true : false,
 									contact: d["Contact information"],
 									email: d["Email Address"]
