@@ -76,14 +76,15 @@ export default function App() {
 	useEffect(() => {
 		if (users) return;
 		const axiosStart = performance.now();
-		axios.get("https://script.google.com/macros/s/AKfycbzqn-y8SAgoDB4QMh-XFzVwP1jrc2FDnh7GXFUy2Mkz6iKv9m5b0uhAKdT7Y9jrIQ7wcQ/exec")	
+		axios.get("https://script.google.com/macros/s/AKfycbzjtRxLByrC7taL32g-8hWQ_TgtqmZEE_Si825jvfRAIh06Un9QwE-rpY4zsG_u1m4anA/exec")	
 			.then((resp) => {
 				const axiosEnd = performance.now();
 				console.log(`Axios call took ${axiosEnd - axiosStart} milliseconds`);
         
 				const features = {};
 				const uniqueStart = performance.now();
-				resp.data.forEach((d) => {          
+				resp.data.forEach((d) => {     
+					console.log(d);     
 					features[d["Email Address"]] =  {
 						type: "Feature",
 						properties: {
@@ -94,7 +95,7 @@ export default function App() {
 									name: d["Name (First Last)"],
 									year: d["Year"],
 									major: d["Major(s)"],
-									activity: d["What have/will you be(en) doing there (ex. Working at McDonalds as a Software Engineer)?"],
+									activity: d["What will you be doing there (ex. Working at McDonalds as a Software Engineer)?"],								
 									roommate: d["Are you looking for a house/roommate?"] == "Yes" ? true : false,
 									contact: d["Contact information"],
 									email: d["Email Address"]
