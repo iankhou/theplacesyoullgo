@@ -15,9 +15,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import "./App.css";
+console.log(process.env);
 
-mapboxgl.accessToken = "pk.eyJ1IjoiaWFua2hvdSIsImEiOiJja3U1enMzNHE0enN4Mm9waXNwcDlyeGVpIn0.gz1TKA2H5JfDkMiHkdVxRQ";
-
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 export default function App() {
 	// update users from Google Sheet
 	const mapContainer = useRef(null);
@@ -76,7 +76,7 @@ export default function App() {
 	useEffect(() => {
 		if (users) return;
 		const axiosStart = performance.now();
-		axios.get("https://script.google.com/macros/s/AKfycbzjtRxLByrC7taL32g-8hWQ_TgtqmZEE_Si825jvfRAIh06Un9QwE-rpY4zsG_u1m4anA/exec")	
+		axios.get(process.env.REACT_APP_SCRIPT_URL)	
 			.then((resp) => {
 				const axiosEnd = performance.now();
 				console.log(`Axios call took ${axiosEnd - axiosStart} milliseconds`);
@@ -180,7 +180,7 @@ export default function App() {
 
 				map.current = new mapboxgl.Map({
 					container: mapContainer.current,
-					style: "mapbox://styles/mapbox/dark-v10",
+					style: process.env.REACT_APP_MAPBOX_STYLE,
 					center: [lng, lat],
 					zoom: zoom
 				});
@@ -335,7 +335,7 @@ export default function App() {
 					<IconButton style={{marginRight:10}} color="primary" onClick={()=>setSearch(true)}>
 						<SearchIcon />
 					</IconButton>
-					<Button className="action_button" size="small" variant="contained" href="https://docs.google.com/forms/d/e/1FAIpQLSdV4LNX-1XjJCtvneYMH1V4d6UdABtJRtr1LOJOM272fc4HOQ/viewform?usp=sf_link">
+					<Button className="action_button" size="small" variant="contained" href={process.env.REACT_APP_FORM_URL}>
     add yourself
 					</Button>
 				</div>
