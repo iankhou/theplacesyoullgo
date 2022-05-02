@@ -284,7 +284,7 @@ export default function App() {
 				const mapEnd = performance.now();
 				
 				console.log(`Mapping records took ${mapEnd - mapStart} milliseconds`);
-				console.log("If you would like to help develop this site, please contact me (Ian Hou) via iankwanhou@gmail.com.");
+				console.log("If you would like to help develop this site, please contact me via krigian22@gmail.com.");
 
 
 
