@@ -15,7 +15,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import "./App.css";
-console.log(process.env);
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 export default function App() {
