@@ -1,8 +1,12 @@
-# Getting Started with Create React App
+# DartMap
+## Accessible at http://dartmap.surge.sh/
+## Getting Started
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
+### Environment Setup
+Create a file named `.env` that defines the following two variables:  
+- `REACT_APP_MAPBOX_ACCESS_TOKEN`
+- `REACT_APP_SCRIPT_URL`
+`REACT_APP_MAPBOX_ACCESS_TOKEN` is a MapBox API token that you can get from [MapBox](https://www.mapbox.com/). `REACT_APP_SCRIPT_URL` is a Google Apps Script endpoint that returns user data.
 
 In the project directory, you can run:
 
